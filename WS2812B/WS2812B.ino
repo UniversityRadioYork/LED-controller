@@ -109,9 +109,15 @@ void handle_cmd(char command[]){
     step_time = getValue(command);
     Serial.println("OK");
   } else if(command[0] == 'B'){ //Set brightness  
+<<<<<<< HEAD
     int new_b = getValue(command);
     if(new_b < 256){ //Validate brightness
       brightness = new_b;
+=======
+    new_b = getValue(command);
+    if(0 <= new_b < 256){
+      brightness = new_b
+>>>>>>> master
       Serial.println("OK");
     } else {
       Serial.println("ERR");
