@@ -8,7 +8,6 @@
 #define BRIGHTNESS  45
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define BRIGHTNESS  80
 #define CMD_START   '/'
 #define CMD_STOP    ';'
 #define MAX_CMD_SIZE 8
@@ -19,6 +18,7 @@
 char cmd[MAX_CMD_SIZE];
 char modes[NUM_MODES] = "abrv";
 uint16_t index = 0;
+uint16_t brightness = 80;
 char mode = 'a';
 int read_cmd = -1;
 int step_time = 1;
@@ -100,6 +100,14 @@ void handle_cmd(char command[]){
   } else if(command[0] == 'D'){ //Set animation delay
     step_time = getValue(command);
     Serial.println("OK");
+  } else if(command[0] == 'B'){ //Set brightness  
+    new_b = getValue(command);
+    if(0 <= new_b < 256){
+      brightness = new_b
+      Serial.println("OK");
+    } else {
+      Serial.println("ERR");
+    }
   } else {                      //Unrecognised command
     Serial.println("ERR");
   }
