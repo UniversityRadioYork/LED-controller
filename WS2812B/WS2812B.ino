@@ -4,17 +4,20 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    2
+#define NUM_LEDS    130
 #define BRIGHTNESS  45
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define BRIGHTNESS  10
+#define BRIGHTNESS  80
 #define CMD_START   '/'
 #define CMD_STOP    ';'
 #define MAX_CMD_SIZE 8
-#define NUM_MODES    3
+#define NUM_MODES    4
+#define HIGH_BND_PIN 1
+#define MID_BND_PIN  2
+#define LOW_BND_PIN  3 
 char cmd[MAX_CMD_SIZE];
-char modes[NUM_MODES] = "abr";
+char modes[NUM_MODES] = "abrv";
 uint16_t index = 0;
 char mode = 'a';
 int read_cmd = -1;
@@ -23,6 +26,7 @@ int step_time = 1;
 // a: ambient
 // b: breathing
 // r: rainbow
+// v: Visualizer
 
 int i = 0;
 CRGB leds[NUM_LEDS];
@@ -117,5 +121,14 @@ void manage_lights(){ //Runs every cycle
     }
   } else if(mode == 'r'){ //RAINBOWS
     fill_solid( leds, NUM_LEDS, ColorFromPalette(rainbowPal,i%256));
+  } else if(mode == 'v'){
+    int lowBand = analogRead(LOW_BND_PIN);
+    int midBand = analogRead(MID_BND_PIN);
+    int highBand = analogRead(HIGH_BND_PIN);
+    // Convert the raw data value (0 - 1023) to voltage (0.0V - 5.0V):
+    float red = lowBand/1024 * BRIGHTNESS;
+    float green = midBand/1024 * BRIGHTNESS;
+    float blue = highBand/1024 * BRIGHTNESS;
+    fill_solid( leds, NUM_LEDS, CRGB(red,green,blue));
   }
 }
