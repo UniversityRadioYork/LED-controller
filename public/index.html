@@ -1,0 +1,23 @@
+<form action="/form/" method="post">
+
+    <label for="mode">Set animation mode: </label>
+    <select id="mode">
+      <option value="a">Solid Colour</option>
+      <option value="b">Breathing</option>
+      <option value="r">Rainbow fade</option>
+      <option value="R">Rainbow gradient</option>
+      <option value="v">Audio Visualizer</option>
+    </select>
+    <br>
+
+    <label for="brightness">Set Brightness: </label>
+    <input id="brightness" type="number" value="25" min="0" max="150" />
+    <br>
+
+    <label for="delay">Set Step-Delay: </label>
+    <input id="delay" type="number" value="20" min="1" max="99" />
+    <p><span class="hint">Lower number -> faster animation</span></p>
+    <br>
+
+    <input type="submit" value="OK">
+</form>

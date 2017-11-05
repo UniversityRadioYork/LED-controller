@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/UniversityRadioYork/LED-controller#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "express-validator": "^4.3.0",
     "serialport": "^6.0.4",
-    "socket.io": "^2.0.4"
+    "zpad": "^0.5.0"
   }
 }
