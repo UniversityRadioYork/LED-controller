@@ -28,5 +28,3 @@ function sendCmd(message, online) {
 module.exports = {
   CMD: sendCmd
 };
-
-//setTimeout(function(){console.log(sendCmd("/Mr;"))},6000)
