@@ -1,37 +1,47 @@
-const app = require('express')()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
-const bodyParser = require('body-parser')
-const expressValidator = require('express-validator')
-const serial = require('./controller.js')
-const formHandler = require('./reqhandler.js')
-let arduino_online = false
+// Mmmmmm imports
+const express = require('express')
+const app = express();
+const http = require('http').Server(app);
+const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+const pug = require('pug');
+const path = require('path');
+const serial = require('./arduino.js');
+const formHandler = require('./reqhandler.js');
+
+//Allows the arduino time to turn on
+let arduino_online = false;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressValidator())
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(expressValidator());
+app.use('/public', express.static(path.join(__dirname, 'public')))
 
-app.get('/form', function(req, res){
-  let commands = formHandler.getCommands(req,res)
-  if(commands !== false){
-    for(let i in commands){
-      serial.sendCMD(commands[i])
-    }
-  }
-})
+app.post('/', function (req, res) {
+  let commands = formHandler.getCommands(req, res);
+  if (commands !== false) {
+    for (let i in commands) {
+      serial.CMD(commands[i], arduino_online);
+    };
+  };
+  res.render('index.pug', formHandler.currentSettings());
+});
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html')
-})
-
-io.on('connection', function(socket){
-  console.log("A client connected")
-  socket.on('test', function(msg){
-    console.log('test recieved');
+app.get('/', function (req, res) {
+  res.render('index.pug', {
+    mode: 'a',
+    brightness: '25',
+    delay: '20'
   });
-})
+});
 
-http.listen(3000, function(){
-  console.log('listening on localhost:3000')
-  setTimeout(function(){arduino_online = true},6000)
-})
+http.listen(3000, function () {
+  console.log('listening on localhost:3000');
+  //Waits 6 seconds before enabling commands to be sent
+  setTimeout(function () {
+    arduino_online = true;
+    console.log("Ready.")
+  }, 6000);
+});

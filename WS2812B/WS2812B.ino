@@ -4,12 +4,12 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    130
+#define NUM_LEDS    30
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
 #define CMD_STOP    ';'
-#define MAX_CMD_SIZE 8
+#define MAX_CMD_SIZE 4
 #define NUM_MODES    5
 #define HIGH_BND_PIN 1
 #define MID_BND_PIN  2
