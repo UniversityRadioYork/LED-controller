@@ -1,0 +1,29 @@
+form(action="/" method="post")
+
+    label(for="mode") Set animation mode: 
+    select(id="mode" name="mode")
+      option(value="a") Solid Colour
+      option(value="b") Breathing
+      option(value="r") Rainbow fade
+      option(value="R") Rainbow gradient
+      option(value="v") Audio Visualizer
+
+    br
+
+    label(for="brightness") Set Brightness: 
+    input(id="brightness", name="brightness", type="number", value=brightness, min="0", max="150")
+
+    br
+
+    label(for="delay") Set Step-Delay: 
+    input(id="delay", name="delay", type="number", value=delay, min="1", max="99")
+    p 
+      span(class="hint") Lower number means faster animation
+
+    br
+
+    input(type="submit" value="OK")
+
+script.
+  var set_mode = "!{mode}"
+script(src="/public/controlPanel.js")
