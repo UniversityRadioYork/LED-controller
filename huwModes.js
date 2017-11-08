@@ -1,83 +1,48 @@
 const request = require('request');
-const ColourToHex = require('colornames')
-const Serial = require('./arduino.js')
-var Title = "";
-var Colour = -1;
-var Studio = 0;
+const ColorToHex = require('colornames');
+const Serial = require('./arduino.js');
+const studio_colours = ["#FF0000", "#00FF00", "#0000FF"]
+let current_color = false;
+let current_studio = 0;
 
-function pollTimelord()
-{
+exports.pollTimelord = function () {
+	//Get current song data
 	request('http://ury.org.uk/audio/status-json.xsl', function (error, response, body) {
-		var data = JSON.parse(body);
-		Title = data.icestats.source[5].title; 
-		//split title into words
-		Words = [];
-		StringStream = "";
-		for(var i = 0; i < Title.length; i++)
-		{
-			if(Title[i] != ' ')
-			{
-				StringStream += Title[i];
-			}
-			else
-			{
-				Words.push(StringStream);
-				StringStream = "";
-			}
-		}
-		Words.push(StringStream);
-		Words.push("END");
+		let data = JSON.parse(body);
+		let title = data.icestats.source[5].title;
+		//Split title into words
+		let words = title.split(" ");
 		//look for colours
-		for(var i = 0; i < Words.length; i++)
-		{
-			if(ColourToHex(Words[i]) != undefined)
-			{
-				Colour = ColourToHex(Words[i]);
-				break;
+		for (let i = 0; i < words.length; i++) {
+			let found_color = ColorToHex(words[i])
+			if (found_color != undefined) {
+				//Set found colour
+				current_color = found_color;
+				return;
 			}
-			else if(Words[i] == "END")
-			{
-				Colour = -1;
-				break;
-			}
-		}
-		//
-		//console.log(Colour);
+		};
+		current_color = false;
 	});
+	//Get studio selector status
 	request('https://ury.org.uk/api/v2/selector/statusattime?api_key=IMNOTAREALKEY', function (error, response, body) {
-		var data = JSON.parse(body);
-		Studio = data.payload.studio;
-		if(Colour == -1)
-		{
-			switch(Studio)
-			{
-				case 1:
-					Colour = ColourToHex("RED");
-					break;
-				case 2:
-					Colour = ColourToHex("GREEN");
-					break;
-				case 3:
-					Colour = ColourToHex("BLUE");
-					break;
-			}
+		let data = JSON.parse(body);
+		current_studio = data.payload.studio;
+		//Lookup the colour for the currently on-air studio
+		if (Colour === false && 0 < current_studio <= 3) {
+			current_color = studio_colours[current_studio]
 		}
 	});
 };
 
-function DynamicStaticPolling(online)
-{
-	var oldColour = Colour;
+exports.DynamicStaticPolling = function (online) {
+	let old_colour = current_color;
 	pollTimelord();
-	if(oldColour != Colour)
-	{
-		sendCmd("/c" + Colour.slice(1));
+	if (old_colour != current_color) {
+		sendCmd("/C" + current_color.slice(1));
 	}
-	
 	console.log(Colour);
 }
 
-module.exports = {
-		pollTimelord: pollTimelord,
-		DynamicStaticPolling: DynamicStaticPolling
+exports.currentStudio = function () {
+	return current_studio
 }
