@@ -9,7 +9,7 @@
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
 #define CMD_STOP    ';'
-#define MAX_CMD_SIZE 4
+#define MAX_CMD_SIZE 8
 #define NUM_MODES    5
 #define HIGH_BND_PIN 1
 #define MID_BND_PIN  2
@@ -23,6 +23,7 @@ int read_cmd = -1;
 int step_time = 50;
 bool initialised = true;
 long time = 0;
+CRGB current_color;
 // MODES:
 // a: ambient
 // b: breathing
@@ -44,7 +45,19 @@ DEFINE_GRADIENT_PALETTE( spectrum ) {
 };               //Except this is GRB sooooo
 CRGBPalette16 rainbowPal = spectrum;
 
+CRGB parseColor(char color_data[]){
+  long decimal = strtol(color_data,0,16);
+  int r = decimal / (256*256);
+  int g = (decimal -(r*256*256))/256;
+  int b = decimal % 256;
+  Serial.print(r);
+  Serial.print(g);
+  Serial.print(b);
+  return CRGB(r,g,b);
+}
+
 void setup() {
+  current_color = CRGB(brightness,0,brightness);
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
   for(int i=0; i<5; i++){
@@ -57,34 +70,6 @@ void setup() {
   time = millis();
 }
 
-void loop() {
-  //As often as possible
-  //Get incoming serial data
-  if (Serial.available() > 0) {
-    char c = Serial.read();
-    //Serial.println(c);
-    //Process commands
-    if(c == CMD_START){
-      read_cmd = 0;
-    } else if(c == CMD_STOP){
-      read_cmd = -1;
-      handle_cmd(cmd);
-    } else if(read_cmd > -1){
-      cmd[read_cmd] = c;
-      read_cmd++;
-    }
-  }
-  //Every [delay] milliseconds
-  if(millis() - time >= step_time){
-    //Iterate animation variable
-    i = (i+1)%768;
-    //Control lights
-    manage_lights();
-    FastLED.show();
-    time = millis();
-  }
-}
-
 boolean includes(char array[], char element, int array_len) {
   for (int j = 0; j < array_len; j++) {
       if (array[j] == element) {
@@ -95,7 +80,10 @@ boolean includes(char array[], char element, int array_len) {
 }
 
 int getValue(char letters[]){
-  int val = atoi(&letters[1]);
+  String number = ((String)letters).substring(1,4);
+  char copy[3];
+  number.toCharArray(copy, 3);
+  int val = atoi(copy);
   return val;
 }
 
@@ -165,4 +153,32 @@ void manage_lights(){ //Runs every cycle
     fill_solid( leds, NUM_LEDS, CRGB(red,green,blue));
   }
   initialised = true;
+}
+
+void loop() {
+  //As often as possible
+  //Get incoming serial data
+  if (Serial.available() > 0) {
+    char c = Serial.read();
+    //Serial.println(c);
+    //Process commands
+    if(c == CMD_START){
+      read_cmd = 0;
+    } else if(c == CMD_STOP){
+      read_cmd = -1;
+      handle_cmd(cmd);
+    } else if(read_cmd > -1){
+      cmd[read_cmd] = c;
+      read_cmd++;
+    }
+  }
+  //Every [delay] milliseconds
+  if(millis() - time >= step_time){
+    //Iterate animation variable
+    i = (i+1)%768;
+    //Control lights
+    manage_lights();
+    FastLED.show();
+    time = millis();
+  }
 }
