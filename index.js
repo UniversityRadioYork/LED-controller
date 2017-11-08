@@ -12,9 +12,7 @@ const huwsModes = require("./huwModes.js");
 
 //Allows the arduino time to turn on
 let arduino_online = false;
-
-//ID for the timelord poll handler
-var intervalID;
+let enable_color_changes = true;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -30,14 +28,6 @@ app.post('/', function (req, res) {
       serial.CMD(commands[i], arduino_online);
     };
   };
-  //huws janky funtime code
-  if (formHandler.currentSettings().mode == 'a') {
-    huwsModes.DynamicStaticPolling()
-    intervalID = setInterval(huwsModes.DynamicStaticPolling, 3000);
-  } else {
-    clearInterval(intervalID);
-  }
-  //end funtime
   res.render('index.pug', formHandler.currentSettings());
 });
 
@@ -52,6 +42,10 @@ app.get('/', function (req, res) {
 http.listen(3000, function () {
   console.log('listening on localhost:3000');
   //Waits 6 seconds before enabling commands to be sent
+  setInterval(function () {
+    let enabled = formHandler.currentSettings().mode == "a";
+    huwsModes.DynamicStaticPolling(enabled, arduino_online)
+  }, 3000);
   setTimeout(function () {
     arduino_online = true;
     console.log("Ready.")
