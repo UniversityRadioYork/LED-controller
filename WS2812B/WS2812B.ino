@@ -4,7 +4,7 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    30
+#define NUM_LEDS    130
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
@@ -46,14 +46,26 @@ DEFINE_GRADIENT_PALETTE( spectrum ) {
 CRGBPalette16 rainbowPal = spectrum;
 
 CRGB parseColor(char color_data[]){
-  long decimal = strtol(color_data,0,16);
-  int r = decimal / (256*256);
-  int g = (decimal -(r*256*256))/256;
-  int b = decimal % 256;
-  Serial.print(r);
-  Serial.print(g);
-  Serial.print(b);
-  return CRGB(r,g,b);
+  String r = "00";
+  String g = "00";
+  String b = "00"; 
+
+  r[0] = color_data[0];
+  r[1] = color_data[1];
+  g[0] = color_data[2];
+  g[1] = color_data[3];
+  b[0] = color_data[4];
+  b[1] = color_data[5];
+  
+  long ri = strtol(&r[0],NULL,16);
+  long gi = strtol(&g[0],NULL,16);
+  long bi = strtol(&b[0],NULL,16);
+
+  Serial.println(color_data);
+  Serial.println(ri);
+  Serial.println(gi);
+  Serial.println(bi);
+  return CRGB(ri,gi,bi);
 }
 
 void setup() {
@@ -68,6 +80,7 @@ void setup() {
   }
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
   time = millis();
+  fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
 }
 
 boolean includes(char array[], char element, int array_len) {
@@ -96,6 +109,9 @@ void handle_cmd(char command[]){
   } else if(command[0] == 'D'){ //Set animation delay
     step_time = getValue(command);
     Serial.println("OK");
+  } else if(command[0] == 'C'){ //Set animation delay
+    current_color = parseColor(&command[1]);
+    Serial.println("OK");
   } else if(command[0] == 'B'){ //Set brightness  
     int new_b = getValue(command);
     if(new_b < 256){ //Validate brightness
@@ -111,7 +127,7 @@ void handle_cmd(char command[]){
 
 void manage_lights(){ //Runs every cycle
   if(mode == 'a'){        //Solid colour; Default
-    fill_solid( leds, NUM_LEDS, CRGB(brightness,0,brightness));
+    fill_solid( leds, NUM_LEDS, current_color);
 
   } else if(mode == 'b'){ //Breathing in 3 colours
     if(i < 256){
