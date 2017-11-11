@@ -9,6 +9,7 @@
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
 #define CMD_STOP    ';'
+#define CMD_STOP    '#'
 #define MAX_CMD_SIZE 8
 #define NUM_MODES    6
 #define HIGH_BND_PIN 1
@@ -233,8 +234,9 @@ void serialEvent(){
 				break;
 			case CMD_STOP:
 				read_cmd = -1;
-				handle_cmd(cmd);
 				break;
+      case CMD_VALID:
+        handle_cmd(cmd);
 			default:
 				if(read_cmd > -1){
 					cmd[read_cmd] = c;
