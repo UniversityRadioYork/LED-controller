@@ -43,11 +43,10 @@ http.listen(3000, function () {
   console.log('listening on localhost:3000');
   //Waits 6 seconds before enabling commands to be sent
   setInterval(function () {
-    let enabled = formHandler.currentSettings().mode == "a";
-    huwsModes.DynamicStaticPolling(enabled, arduino_online)
+    huwsModes.DynamicStaticPolling(arduino_online)
   }, 3000);
   setTimeout(function () {
     arduino_online = true;
     console.log("Ready.")
-  }, 6000);
+  }, 3000);
 });

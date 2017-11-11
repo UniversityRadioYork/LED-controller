@@ -7,6 +7,7 @@ form(action="/" method="post")
       option(value="r") Rainbow fade
       option(value="R") Rainbow gradient
       option(value="v") Audio Visualizer
+      option(value="p") Ping Pong
 
     br
 
@@ -16,7 +17,7 @@ form(action="/" method="post")
     br
 
     label(for="delay") Set Step-Delay: 
-    input(id="delay", name="delay", type="number", value=delay, min="1", max="99")
+    input(id="delay", name="delay", type="number", value=delay, min="1", max="999")
     p 
       span(class="hint") Lower number means faster animation
 
