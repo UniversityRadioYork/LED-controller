@@ -173,8 +173,7 @@ void manage_lights(){ //Runs every cycle
 		case 'p':
 			int MaxSlow;
 			MaxSlow = 99;
-			if(!initialised)
-			{
+			if(!initialised){
 				step_time = MaxSlow;
 				direction = 1;
 				fill_solid(leds, NUM_LEDS, CRGB(0,0,0));
@@ -182,25 +181,20 @@ void manage_lights(){ //Runs every cycle
 				PingPongPos = 0;
 				//fill_solid(leds, 5, current_color);
 			}
-			if(direction == 1)
-			{
+			if(direction == 1){
 				leds[PingPongPos] = CRGB(0,0,0);
 				leds[PingPongPos+1] = current_color;
 				PingPongPos++;
-			}
-			else
-			{
+			} else {
 				leds[PingPongPos] = CRGB(0,0,0);
 				leds[PingPongPos-1] = current_color;
 				PingPongPos--;
-			}
-			if(!(leds[NUM_LEDS-1] == CRGB(0,0,0) && leds[0] == CRGB(0,0,0)) && initialised)
-			{
+			} 
+      if(!(leds[NUM_LEDS-1] == CRGB(0,0,0) && leds[0] == CRGB(0,0,0)) && initialised){
 				direction = -direction;
 				step_time = step_time * .75 ;
-			}
-			if(step_time <= 0.00001)
-			{
+			} 
+      if(step_time <= 0.00001) {
 				step_time = MaxSlow;
 			}
 			break;
