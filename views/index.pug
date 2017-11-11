@@ -12,12 +12,12 @@ form(action="/" method="post")
     br
 
     label(for="brightness") Set Brightness: 
-    input(id="brightness", name="brightness", type="number", value=brightness, min="0", max="150")
+    input(id="brightness", name="brightness", type="range", value=brightness, min="0", max="255")
 
     br
 
     label(for="delay") Set Step-Delay: 
-    input(id="delay", name="delay", type="number", value=delay, min="1", max="999")
+    input(id="delay", name="delay", type="range", value=delay, min="1", max="100")
     p 
       span(class="hint") Lower number means faster animation
 

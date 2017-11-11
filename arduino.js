@@ -22,7 +22,6 @@ port.on('data', function (data) {
 
 function handleData(data){
   if(data == '') return;
-  console.log(data)
   if(need_validation){
     if(data[0] == "/"){
       let cmd = data.slice(1);
@@ -30,7 +29,7 @@ function handleData(data){
         console.log("Command Validated, sending valid signal")
         port.write("#");
       } else {
-        console.log(cmd+";"+ last_command)
+        console.log(cmd.slice(0,last_command.length)+"=/="+ last_command)
         console.log("Command was garbled, resending...")
         cmdqueue.splice(0,0,last_command);
       }

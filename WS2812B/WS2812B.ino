@@ -4,7 +4,7 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    130
+#define NUM_LEDS    140
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
@@ -18,7 +18,6 @@
 char cmd[] = "#######";
 char modes[] = "abrRvp";
 uint16_t index = 0;
-uint16_t brightness = 25;
 char mode = 'a';
 int read_cmd = -1;
 float step_time = 50;
@@ -46,8 +45,16 @@ DEFINE_GRADIENT_PALETTE( spectrum ) {
 160,    0,  0,255, //Blue
 200,  200,  0,200, //Magenta
 255,  255,  0,  0  //Red
-};               //Except this is GRB sooooo
+};
 CRGBPalette16 rainbowPal = spectrum;
+
+DEFINE_GRADIENT_PALETTE( warm ) {
+  0,  255,  0,  0, //Red
+ 40,  200,200,  0, //Yellow
+200,  200,  0,200, //Magenta
+255,  255,  0,  0  //Red
+};
+CRGBPalette16 warmPal = warm;
 
 CRGB parseColor(char color_data[]){
 	String r = "00";
@@ -70,7 +77,7 @@ CRGB parseColor(char color_data[]){
 }
 
 void setup() {
-	current_color = CRGB(brightness,0,brightness);
+	current_color = CRGB(255,0,255);
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(9600);
 	FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
@@ -113,7 +120,7 @@ void handle_cmd(char command[]){
 			int new_b;
 			new_b = getValue(command);
 			if(new_b < 256){
-				brightness = new_b;
+				FastLED.setBrightness( new_b );
 			}
 			break;
 		//Set the color
@@ -146,13 +153,13 @@ void manage_lights(){ //Runs every cycle
 		//Breathing preset colors
 		case 'b':
 			if(i < 256){
-				float v = (float)(128-abs(128-i)) /128*brightness;
+				float v = (float)(128-abs(128-i))*2;
 				fill_solid( leds, NUM_LEDS, CRGB(v,v,0));
 			} else if(i < 512){
-				float v = (float)(128-abs(384-i)) /128*brightness;
+				float v = (float)(128-abs(384-i))*2;
 				fill_solid( leds, NUM_LEDS, CRGB(0,v,v));
 			} else {
-				float v = (float)(128-abs(640-i)) /128*brightness;
+				float v = (float)(128-abs(640-i))*2;
 				fill_solid( leds, NUM_LEDS, CRGB(v,0,v));
 			}
 			break;
@@ -198,7 +205,7 @@ void manage_lights(){ //Runs every cycle
 			}
 			break;
 		default:
-			fill_solid( leds, NUM_LEDS, CRGB(brightness,brightness,0));
+			fill_solid( leds, NUM_LEDS, CRGB(255,255,0));
 	}
 	initialised = true;
 }
