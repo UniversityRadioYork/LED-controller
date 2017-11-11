@@ -9,7 +9,7 @@
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
 #define CMD_STOP    ';'
-#define CMD_STOP    '#'
+#define CMD_VALID   '#'
 #define MAX_CMD_SIZE 8
 #define NUM_MODES    6
 #define HIGH_BND_PIN 1
@@ -39,13 +39,13 @@ int i = 0;
 CRGB leds[NUM_LEDS];
 
 DEFINE_GRADIENT_PALETTE( spectrum ) {
-  0,   50,  0,  0, //Red
- 40,   40, 40,  0, //Yellow
- 80,    0, 50,  0, //Green
-120,    0, 40, 40, //Cyan
-160,    0,  0, 50, //Blue
-200,   40,  0, 40, //Magenta
-255,   50,  0,  0  //Red
+  0,  255,  0,  0, //Red
+ 40,  200,200,  0, //Yellow
+ 80,    0,255,  0, //Green
+120,    0,200,200, //Cyan
+160,    0,  0,255, //Blue
+200,  200,  0,200, //Magenta
+255,  255,  0,  0  //Red
 };               //Except this is GRB sooooo
 CRGBPalette16 rainbowPal = spectrum;
 
@@ -65,7 +65,7 @@ CRGB parseColor(char color_data[]){
 	long gi = strtol(&g[0],NULL,16);
 	long bi = strtol(&b[0],NULL,16);
 
-	Serial.println(color_data);
+	// Serial.println(color_data);
 	return CRGB(ri,gi,bi);
 }
 
@@ -92,18 +92,17 @@ int getValue(char letters[]){
 	char copy[3];
 	number.toCharArray(copy, 4);
 	int val = atoi(copy);
-	Serial.println(val);
+	// Serial.println(val);
 	return val;
 }
 
 void handle_cmd(char command[]){
-	Serial.println(command);
 	//Do a thing depending on the command type
 	switch(command[0]){
 		//Set the mode
 		case 'M':
 			if(!includes(modes, command[1], NUM_MODES)){
-				Serial.println("modeERR");
+				Serial.println("ERR");
 			} else {
 				mode = command[1];
 				initialised = false;
@@ -205,9 +204,6 @@ void manage_lights(){ //Runs every cycle
 }
 
 void loop() {
-	//As often as possible
-	//Get incoming serial data
-	
 	//Every [delay] milliseconds
 	if(millis() - time >= step_time){
 		//Iterate animation variable
@@ -228,9 +224,11 @@ void serialEvent(){
 				break;
 			case CMD_STOP:
 				read_cmd = -1;
+				Serial.print("/");
+				Serial.println(cmd);
 				break;
-      case CMD_VALID:
-        handle_cmd(cmd);
+		      case CMD_VALID:
+		        handle_cmd(cmd);
 			default:
 				if(read_cmd > -1){
 					cmd[read_cmd] = c;

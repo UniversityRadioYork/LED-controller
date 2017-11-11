@@ -30,7 +30,7 @@ function getCurrentStudiocolor() {
   //Get studio selector status
   request('https://ury.org.uk/api/v2/selector/statusattime?api_key=9C4KCqywpDfzIk7OEhYO3tOjDJWftg2sZ65fKT5fTGCWvshnz5tinVt1MiqvETM4eZYDtQbRs13GoTCNB8HTsmQQlcDwFmRo8Xw3uHQoycYkumyTVGdXbxtt1S2Ow7RFbK', function (error, response, body) {
     let data = JSON.parse(body);
-    studio = 1 //data.payload.studio;
+    studio = data.payload.studio;
       //Lookup the color for the currently on-air studio
     if (0 < studio <= 3 && studio % 1 == 0) {
       studio_color = studio_colors[studio];
@@ -47,7 +47,7 @@ function pollColor() {
 
 exports.DynamicStaticPolling = function (online) {
   pollColor();
-  console.log(song_color, studio_color, current_color)
+  //console.log(song_color, studio_color, current_color)
 
   let new_color = song_color || studio_color;
 
@@ -56,6 +56,6 @@ exports.DynamicStaticPolling = function (online) {
     if (!current_color) {
       current_color = "#FFFF00";
     }
-    serial.CMD("/C" + current_color.slice(1) + ";", online);
+    serial.CMD("C" + current_color.slice(1), online);
   }
 }

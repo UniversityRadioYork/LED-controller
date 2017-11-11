@@ -2,45 +2,64 @@ const SerialPort = require('serialport');
 const port = new SerialPort('COM3', {
   baudRate: 9600
 })
-var data = ""
 var need_validation = false;
+var cmdqueue = [];
 
 port.on('error', function (err) {
   console.log('Error: ', err.message)
 })
 
-port.on('readable', function () {
-  data += port.read()
-  if (data.indexOf("\n") > -1) {
-    let datas = data.split("\n");
-    data = datas[1];
-    let chunk = datas[0];
-    console.log("Recieved:", chunk)
-    if (need_validation && chunk != last_command) {
-      console.log("Command was garbled, resending...")
-      sendCmd(last_command, true);
-    } else {
-      console.log("Command Validated, sending valid signal")
-      sendCmd("#", true);
-      need_validation = false;
-    }
+port.on('data', function (data) {
+  //let data = String(port.read());
+  data = String(data);
+  console.log("Stream:", data)
+  if (data.indexOf("\r\n") > -1) {
+    let datas = data.split("\r\n");
+    datas.forEach(handleData);
   }
-
-  console.log(data)
 })
 
-// port.on('data', function (data) {
-//   console.log('Data:', data.toString('utf8'));
-// });
 
-async function sendCmd(message, online) {
-  if (online) {
+function handleData(data){
+  if(data == '') return;
+  console.log(data)
+  if(need_validation){
+    if(data[0] == "/"){
+      let cmd = data.slice(1);
+      if(cmd.slice(0,last_command.length) == last_command){
+        console.log("Command Validated, sending valid signal")
+        port.write("#");
+      } else {
+        console.log(cmd+";"+ last_command)
+        console.log("Command was garbled, resending...")
+        cmdqueue.splice(0,0,last_command);
+      }
+    } else if(data == "ERR"){
+      console.log("Invalid command");
+    }
+  } else {
+    console.log("DATA:",data)
+  }
+  need_validation = false;
+  if(cmdqueue.length > 0){
+    sendCmd(cmdqueue.pop(0), true);
+  }
+}
+
+
+function sendCmd(message, online) {
+  if (online && !need_validation) {
     console.log("Sending: ", message);
+    console.log("    Queue:", cmdqueue);
     last_command = message;
-    port.write(message, function (err) {
-      need_validation = true;
+    need_validation = true;
+    port.write("/"+message+";", function (err) {
       return err || console.log("Sent");
     })
+  } else {
+    cmdqueue.push(message);
+    console.log("Queueing up",message);
+    console.log("    Queue:", cmdqueue);
   }
 }
 

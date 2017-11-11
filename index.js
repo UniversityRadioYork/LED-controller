@@ -42,11 +42,11 @@ app.get('/', function (req, res) {
 http.listen(3000, function () {
   console.log('listening on localhost:3000');
   //Waits 6 seconds before enabling commands to be sent
-  setInterval(function () {
-    huwsModes.DynamicStaticPolling(arduino_online)
-  }, 3000);
   setTimeout(function () {
     arduino_online = true;
+    setInterval(function () {
+      huwsModes.DynamicStaticPolling(arduino_online)
+    }, 3000);
     console.log("Ready.")
   }, 3000);
 });

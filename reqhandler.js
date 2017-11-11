@@ -29,17 +29,17 @@ exports.getCommands = function (req, res) {
     //Adds mode command if needed
     if (cmd.mode != currentMode) {
       currentMode = cmd.mode;
-      commands.push("/M" + cmd.mode + ";");
+      commands.push("M" + cmd.mode);
     };
     //Adds brightness command if needed
     if (cmd.brightness != currentBrightness) {
       currentBrightness = cmd.brightness;
-      commands.push("/B" + zpad(cmd.brightness, 3) + ";");
+      commands.push("B" + zpad(cmd.brightness, 3));
     };
     //Adds delay command if needed
     if (cmd.delay != currentDelay) {
       currentDelay = cmd.delay;
-      commands.push("/D" + zpad(cmd.delay, 3) + ";");
+      commands.push("D" + zpad(cmd.delay, 3));
     };
 
     return commands;
