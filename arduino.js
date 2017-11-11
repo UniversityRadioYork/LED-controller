@@ -9,18 +9,29 @@ port.on('error', function (err) {
 
 port.on('readable', function () {
   data += port.read()
+  if (data.indexOf("\n") > -1) {
+    let datas = data.split("\n");
+    data = datas[1];
+    let validation = datas[0];
+    if (validation != last_command) {
+      console.log("Command was garbled, resending...")
+      sendCmd(last_command, true);
+    }
+  }
+
   console.log(data)
 })
 
-port.on('data', function (data) {
-  console.log('Data:', data.toString('utf8'));
-});
+// port.on('data', function (data) {
+//   console.log('Data:', data.toString('utf8'));
+// });
 
-function sendCmd(message, online) {
+async function sendCmd(message, online) {
   if (online) {
-    console.log("sending: ", message);
+    console.log("Sending: ", message);
+    last_command = message;
     port.write(message, function (err) {
-      return err || "Success!"
+      return err || console.log("Sent");
     })
   }
 }
