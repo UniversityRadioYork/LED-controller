@@ -96,6 +96,7 @@ void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(9600);
 	FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+	FastLED.setBrightness(150);
 	fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
 	time = millis();
 }
