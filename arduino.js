@@ -11,7 +11,6 @@ port.on('error', function (err) {
 })
 
 port.on('data', function (streamData) {
-  //let data = String(port.read());
   data += String(streamData);
   //console.log("Stream:", data)
   if (data.indexOf("\r\n") > -1) {
@@ -32,7 +31,7 @@ function handleData(h_data){
         console.log("Command Validated.")
         port.write("#");
       } else {
-        console.log(cmd.slice(0,last_command.length)+" =/= "+ last_command)
+        //console.log(cmd.slice(0,last_command.length)+" =/= "+ last_command)
         console.log("Command was garbled, resending...")
         cmdqueue.splice(0,0,last_command);
       }
@@ -43,11 +42,11 @@ function handleData(h_data){
     console.log("DATA:",h_data)
   }
   need_validation = false;
-  if(cmdqueue.length > 0){
-    setTimeout(function(){
+  setTimeout(function(){
+    if(cmdqueue.length > 0){
       sendCmd(cmdqueue.pop(0), true);
-    }, 50);
-  }
+    }
+  }, 50);
 }
 
 

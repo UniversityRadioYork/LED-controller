@@ -34,6 +34,7 @@ app.post('/', function (req, res) {
 app.get('/', function (req, res) {
   res.render('index.pug', {
     mode: 'a',
+    palette: 'r',
     brightness: '100',
     delay: '20'
   });

@@ -11,12 +11,11 @@
 #define CMD_STOP    ';'
 #define CMD_VALID   '#'
 #define MAX_CMD_SIZE 8
-#define NUM_MODES    6
 #define HIGH_BND_PIN 1
 #define MID_BND_PIN  2
 #define LOW_BND_PIN  3 
 char cmd[] = "#######";
-char modes[] = "abrRvp";
+char modes[] = "abfgpv";
 uint16_t index = 0;
 char mode = 'a';
 int read_cmd = -1;
@@ -26,6 +25,7 @@ long time = 0;
 int direction = 0;
 int PingPongPos = 0;
 CRGB current_color;
+CRGBPalette16 current_pal;
 // MODES:
 // a: ambient
 // b: breathing
@@ -33,6 +33,11 @@ CRGB current_color;
 // R: moving rainbow
 // v: Visualizer
 // p: ping pong pang
+
+// PALETTES:
+// r: rainbow / spectrum
+// w: warm colors
+// c: cold colors
 
 int i = 0;
 CRGB leds[NUM_LEDS];
@@ -50,11 +55,20 @@ CRGBPalette16 rainbowPal = spectrum;
 
 DEFINE_GRADIENT_PALETTE( warm ) {
   0,  255,  0,  0, //Red
- 40,  200,200,  0, //Yellow
-200,  200,  0,200, //Magenta
+100,  200,120,  0, //Yellow
+150,  255,  0,  0, //Red
+200,  200,  0, 80, //Magenta
 255,  255,  0,  0  //Red
 };
 CRGBPalette16 warmPal = warm;
+
+DEFINE_GRADIENT_PALETTE( cold ) {
+  0,    0,  0,255, //Blue
+ 40,    0,200,200, //Cyan
+180,    0,255,  0, //Green
+255,    0,  0,255, //Blue
+};
+CRGBPalette16 coldPal = cold;
 
 CRGB parseColor(char color_data[]){
 	String r = "00";
@@ -78,6 +92,7 @@ CRGB parseColor(char color_data[]){
 
 void setup() {
 	current_color = CRGB(255,0,255);
+	current_pal = rainbowPal;
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(9600);
 	FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
@@ -85,8 +100,8 @@ void setup() {
 	time = millis();
 }
 
-boolean includes(char array[], char element, int array_len) {
-	for (int j = 0; j < array_len; j++) {
+boolean includes(char array[], char element) {
+	for (int j = 0; j < strlen(array); j++) {
 			if (array[j] == element) {
 					return true;
 			}
@@ -108,11 +123,27 @@ void handle_cmd(char command[]){
 	switch(command[0]){
 		//Set the mode
 		case 'M':
-			if(!includes(modes, command[1], NUM_MODES)){
+			if(!includes(modes, command[1])){
 				Serial.println("ERR");
 			} else {
 				mode = command[1];
 				initialised = false;
+			}
+			break;
+		//Set the palette
+		case 'P':
+			switch(command[1]){
+				case 'r':
+					current_pal = rainbowPal;
+					break;
+				case 'w':
+					current_pal = warmPal;
+					break;
+				case 'c':
+					current_pal = coldPal;
+					break;
+				default:
+					Serial.println("ERR");
 			}
 			break;
 		//Set the brightness
@@ -129,9 +160,9 @@ void handle_cmd(char command[]){
 			Serial.print("|");
 			Serial.print(current_color.red);
 			Serial.print(",");
-			Serial.print(current_color.blue);
-			Serial.print(",");
 			Serial.print(current_color.green);
+			Serial.print(",");
+			Serial.print(current_color.blue);
 			Serial.println("|");
 			break;
 		//Set the animation delay
@@ -164,16 +195,16 @@ void manage_lights(){ //Runs every cycle
 			}
 			break;
 		//Solid rainbow fading
-		case 'r':
-			fill_solid( leds, NUM_LEDS, ColorFromPalette(rainbowPal,i%256));
+		case 'f':
+			fill_solid( leds, NUM_LEDS, ColorFromPalette(current_pal,i%256));
 			break;
 		//Moving rainbow gradient
-		case 'R':
-			leds[NUM_LEDS-1] = ColorFromPalette(rainbowPal,i%256);
+		case 'g':
+			leds[NUM_LEDS-1] = ColorFromPalette(current_pal,i%256);
 			for(int dot = 0; dot < NUM_LEDS-1; dot++) { 
 				leds[dot] = leds[dot+1];
 			}
-			leds[NUM_LEDS-1] = ColorFromPalette(rainbowPal,i%256);
+			leds[NUM_LEDS-1] = ColorFromPalette(current_pal,i%256);
 			break;
 		//ping pong ping pong pingpongpingpongPINGPONGPINGPONG
 		case 'p':
