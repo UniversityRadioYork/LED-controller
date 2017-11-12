@@ -46,7 +46,7 @@ function handleData(h_data){
     if(cmdqueue.length > 0){
       sendCmd(cmdqueue.pop(0), true);
     }
-  }, 50);
+  }, 100);
 }
 
 

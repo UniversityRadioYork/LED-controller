@@ -4,7 +4,7 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    140
+#define NUM_LEDS    424
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
