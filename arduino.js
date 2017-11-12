@@ -4,44 +4,49 @@ const port = new SerialPort('COM3', {
 })
 var need_validation = false;
 var cmdqueue = [];
+var data = "";
 
 port.on('error', function (err) {
   console.log('Error: ', err.message)
 })
 
-port.on('data', function (data) {
+port.on('data', function (streamData) {
   //let data = String(port.read());
-  data = String(data);
-  console.log("Stream:", data)
+  data += String(streamData);
+  //console.log("Stream:", data)
   if (data.indexOf("\r\n") > -1) {
     let datas = data.split("\r\n");
+    data = datas.pop(datas.length-1);
+    //console.log(datas, data)
     datas.forEach(handleData);
   }
 })
 
 
-function handleData(data){
-  if(data == '') return;
+function handleData(h_data){
+  //console.log("handling:",h_data)
   if(need_validation){
-    if(data[0] == "/"){
-      let cmd = data.slice(1);
+    if(h_data[0] == "/"){
+      let cmd = h_data.slice(1);
       if(cmd.slice(0,last_command.length) == last_command){
-        console.log("Command Validated, sending valid signal")
+        console.log("Command Validated.")
         port.write("#");
       } else {
-        console.log(cmd.slice(0,last_command.length)+"=/="+ last_command)
+        console.log(cmd.slice(0,last_command.length)+" =/= "+ last_command)
         console.log("Command was garbled, resending...")
         cmdqueue.splice(0,0,last_command);
       }
-    } else if(data == "ERR"){
+    } else if(h_data == "ERR"){
       console.log("Invalid command");
     }
   } else {
-    console.log("DATA:",data)
+    console.log("DATA:",h_data)
   }
   need_validation = false;
   if(cmdqueue.length > 0){
-    sendCmd(cmdqueue.pop(0), true);
+    setTimeout(function(){
+      sendCmd(cmdqueue.pop(0), true);
+    }, 50);
   }
 }
 
@@ -49,7 +54,7 @@ function handleData(data){
 function sendCmd(message, online) {
   if (online && !need_validation) {
     console.log("Sending: ", message);
-    console.log("    Queue:", cmdqueue);
+    //console.log("    Queue:", cmdqueue);
     last_command = message;
     need_validation = true;
     port.write("/"+message+";", function (err) {
@@ -57,8 +62,8 @@ function sendCmd(message, online) {
     })
   } else {
     cmdqueue.push(message);
-    console.log("Queueing up",message);
-    console.log("    Queue:", cmdqueue);
+    //console.log("Queueing up",message);
+    //console.log("    Queue:", cmdqueue);
   }
 }
 
