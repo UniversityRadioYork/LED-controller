@@ -4,20 +4,28 @@ form(action="/" method="post")
     select(id="mode" name="mode")
       option(value="a") Solid Colour
       option(value="b") Breathing
-      option(value="r") Rainbow fade
-      option(value="R") Rainbow gradient
+      option(value="f") Fade
+      option(value="g") Gradient
       option(value="v") Audio Visualizer
       option(value="p") Ping Pong
 
     br
 
+    label(for="palette") Set color palette for animated modes:
+    select(id="palette" name="palette")
+      option(value="r") Rainbow
+      option(value="w") Warm
+      option(value="c") Cold
+
+    br
+
     label(for="brightness") Set Brightness: 
-    input(id="brightness", name="brightness", type="number", value=brightness, min="0", max="150")
+    input(id="brightness", name="brightness", type="range", value=brightness, min="0", max="180")
 
     br
 
     label(for="delay") Set Step-Delay: 
-    input(id="delay", name="delay", type="number", value=delay, min="1", max="999")
+    input(id="delay", name="delay", type="range", value=delay, min="1", max="100")
     p 
       span(class="hint") Lower number means faster animation
 
@@ -27,4 +35,5 @@ form(action="/" method="post")
 
 script.
   var set_mode = "!{mode}"
+  var set_palette = "!{palette}"
 script(src="/public/controlPanel.js")

@@ -34,7 +34,8 @@ app.post('/', function (req, res) {
 app.get('/', function (req, res) {
   res.render('index.pug', {
     mode: 'a',
-    brightness: '25',
+    palette: 'r',
+    brightness: '100',
     delay: '20'
   });
 });
@@ -42,11 +43,11 @@ app.get('/', function (req, res) {
 http.listen(3000, function () {
   console.log('listening on localhost:3000');
   //Waits 6 seconds before enabling commands to be sent
-  setInterval(function () {
-    huwsModes.DynamicStaticPolling(arduino_online)
-  }, 3000);
   setTimeout(function () {
     arduino_online = true;
+    setInterval(function () {
+      huwsModes.DynamicStaticPolling(arduino_online)
+    }, 3000);
     console.log("Ready.")
   }, 3000);
 });
