@@ -1,9 +1,18 @@
+style(type='text/css').
+    *{
+        font-family: sans-serif;
+    }
+
+
 form(action="/" method="post")
 
+    h1 LED Control Panel
+    
     label(for="mode") Set animation mode: 
     select(id="mode" name="mode")
       option(value="a") Solid Colour
       option(value="b") Breathing
+      option(value="c") Christmas
       option(value="f") Fade
       option(value="g") Gradient
       option(value="v") Audio Visualizer
@@ -25,7 +34,7 @@ form(action="/" method="post")
     br
 
     label(for="delay") Set Step-Delay: 
-    input(id="delay", name="delay", type="range", value=delay, min="1", max="100")
+    input(id="delay", name="delay", type="range", value=delay, min="1", max="999")
     p 
       span(class="hint") Lower number means faster animation
 

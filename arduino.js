@@ -1,5 +1,5 @@
 const SerialPort = require('serialport');
-const port = new SerialPort('COM3', {
+const port = new SerialPort('COM6', {
   baudRate: 9600
 })
 var need_validation = false;
@@ -46,7 +46,7 @@ function handleData(h_data){
     if(cmdqueue.length > 0){
       sendCmd(cmdqueue.pop(0), true);
     }
-  }, 100);
+  }, 300);
 }
 
 

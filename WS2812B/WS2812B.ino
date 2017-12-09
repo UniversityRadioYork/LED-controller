@@ -4,7 +4,7 @@
 #endif
 
 #define LED_PIN     2
-#define NUM_LEDS    424
+#define NUM_LEDS    484
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define CMD_START   '/'
@@ -15,7 +15,7 @@
 #define MID_BND_PIN  2
 #define LOW_BND_PIN  3 
 char cmd[] = "#######";
-char modes[] = "abfgpv";
+char modes[] = "abcfgpv";
 uint16_t index = 0;
 char mode = 'a';
 int read_cmd = -1;
@@ -24,6 +24,8 @@ bool initialised = true;
 long time = 0;
 int direction = 0;
 int PingPongPos = 0;
+bool offbeat = false;
+bool Santa = false;
 CRGB current_color;
 CRGBPalette16 current_pal;
 // MODES:
@@ -33,6 +35,7 @@ CRGBPalette16 current_pal;
 // R: moving rainbow
 // v: Visualizer
 // p: ping pong pang
+// c: christmas
 
 // PALETTES:
 // r: rainbow / spectrum
@@ -96,7 +99,7 @@ void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(9600);
 	FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
-	FastLED.setBrightness(150);
+	FastLED.setBrightness(80);
 	fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
 	time = millis();
 }
@@ -129,6 +132,10 @@ void handle_cmd(char command[]){
 			} else {
 				mode = command[1];
 				initialised = false;
+        if(command[1] == "c")
+        {
+          Santa = false;
+        }
 			}
 			break;
 		//Set the palette
@@ -170,6 +177,16 @@ void handle_cmd(char command[]){
 		case 'D':
 			step_time = getValue(command);
 			break;
+    case 'S':
+      if(mode == "a")
+      {
+        Santa = true;
+      }
+      else
+      {
+        Santa = false;
+      }
+      break;
 		//In case of unrecognised command
 		default:
 			Serial.println("ERR");
@@ -177,6 +194,11 @@ void handle_cmd(char command[]){
 }
 
 void manage_lights(){ //Runs every cycle
+	if(Santa)
+  {
+    mode = 'c';
+  }
+	 
 	switch(mode){
 		//Solid dynamic color
 		case 'a':
@@ -185,13 +207,13 @@ void manage_lights(){ //Runs every cycle
 		//Breathing preset colors
 		case 'b':
 			if(i < 256){
-				float v = (float)(128-abs(128-i))*2;
+        float v = 255 - abs(127 - i%256)*1.9;
 				fill_solid( leds, NUM_LEDS, CRGB(v,v,0));
 			} else if(i < 512){
-				float v = (float)(128-abs(384-i))*2;
+        float v = 255 - abs(127 - i%256)*1.9;
 				fill_solid( leds, NUM_LEDS, CRGB(0,v,v));
 			} else {
-				float v = (float)(128-abs(640-i))*2;
+        float v = 255 - abs(127 - i%256)*1.9;
 				fill_solid( leds, NUM_LEDS, CRGB(v,0,v));
 			}
 			break;
@@ -210,7 +232,7 @@ void manage_lights(){ //Runs every cycle
 		//ping pong ping pong pingpongpingpongPINGPONGPINGPONG
 		case 'p':
 			int MaxSlow;
-			MaxSlow = 99;
+			MaxSlow = 50;
 			if(!initialised){
 				step_time = MaxSlow;
 				direction = 1;
@@ -229,13 +251,27 @@ void manage_lights(){ //Runs every cycle
 				PingPongPos--;
 			} 
       if(!(leds[NUM_LEDS-1] == CRGB(0,0,0) && leds[0] == CRGB(0,0,0)) && initialised){
-				direction = -direction;
-				step_time = step_time * .75 ;
+				leds[PingPongPos] = CRGB(0,0,0);
+        leds[0] = current_color;
+        PingPongPos = 0;
+        step_time /= 3;
 			} 
       if(step_time <= 0.00001) {
 				step_time = MaxSlow;
 			}
 			break;
+    //jingle
+    case 'c':
+      for(int i = 0+offbeat; i < NUM_LEDS; i+=2)
+      {
+        leds[i] = CRGB(255, 0 , 0);
+      }
+      for(int i = 1+offbeat; i < NUM_LEDS; i+=2)
+      {
+        leds[i] = CRGB(0, 255 , 0);
+      }
+      offbeat = !offbeat;
+      break;
 		default:
 			fill_solid( leds, NUM_LEDS, CRGB(255,255,0));
 	}

@@ -16,6 +16,10 @@ function getCurrentSongcolor() {
     //look for colors
     for (let i = 0; i < words.length; i++) {
       let found_color = ColorToHex(words[i]);
+	  if (words[i].toLowerCase() == "christmas")
+	  {
+		  serial.CMD("S", true);
+	  }
       if (found_color != undefined) {
         song_color = found_color;
         break;
